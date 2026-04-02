@@ -1,1 +1,1 @@
-web: gunicorn main:app
+from bot import flask_app
