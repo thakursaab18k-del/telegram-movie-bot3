@@ -1,10 +1,10 @@
 import os
 from flask import Flask
-from telegram.ext import ApplicationBuilder
+from telegram.ext import Application, CommandHandler
 
 TOKEN = os.getenv("TOKEN")
 if not TOKEN:
-    print("❌ ERROR: TOKEN environment variable missing!")
+    print("❌ TOKEN missing!")
     exit(1)
 
 app = Flask(__name__)
@@ -12,9 +12,19 @@ app = Flask(__name__)
 @app.route("/")
 @app.route("/health")
 def home():
-    return {"status": "Movie Bot OK", "token_set": bool(TOKEN)}
+    return {"status": "Movie Bot Ready!", "token_ok": True}
 
-print("✅ TOKEN found, starting bot...")
-app = ApplicationBuilder().token(TOKEN).build()
-print("🚀 Bot started!")
-app.run_polling(drop_pending_updates=True)
+print("✅ Starting Movie Bot...")
+
+# Create application
+application = Application.builder().token(TOKEN).build()
+
+async def start(update, context):
+    await update.message.reply_text("🎬 Movie Bot Ready!\nSend movie name!")
+
+application.add_handler(CommandHandler("start", start))
+print("🚀 Bot handlers added!")
+
+# Run bot
+print("🔄 Starting polling...")
+application.run_polling(drop_pending_updates=True)
